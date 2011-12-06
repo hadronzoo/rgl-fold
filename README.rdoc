@@ -1,0 +1,39 @@
+= rgl-fold
+
+The RGLFold module adds a fold method to RGL[http://rgl.rubyforge.org/rgl/] graphs. Fold iterates over all paths accessible in a graph from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
+
+== Usage
+
+Create a directed adjacency graph and add fold functionality:
+    require 'rgl/adjacency'
+    require 'rgl-fold'
+    dg = RGL::DirectedAdjacencyGraph [1,2, 2,3, 2,4, 4,5, 6,4, 1,6]
+    dg.extend RGLFold
+
+Return a set of every path in the graph from the root vertex:
+    dg.fold(1, []) {|accum, vertex| accum + [vertex]}
+      #=> #<Set: {[1, 2, 3], [1, 2, 4, 5], [1, 6, 4, 5]}> 
+
+Return a set of every path in the graph from the 6 vertex:
+    dg.fold(6, []) {|accum, vertex| accum + [vertex]}
+      #=> #<Set: {[6, 4, 5]}>
+
+Sum the vertices for each path:
+    dg.fold(1, 0) {|accum, vertex| accum + vertex}
+      #=> #<Set: {6, 12, 16}>
+
+== Contributing to rgl-fold
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2011 Joshua B. Griffith. See LICENSE.txt for
+further details.
+
