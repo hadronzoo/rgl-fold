@@ -8,17 +8,59 @@ describe "RglFold" do
   end
 
   it "should fold from root vertex" do
-    array_paths = DG.fold(1, []) {|accum, vertex| accum + [vertex]}
-    array_paths.should == [[1, 2, 3], [1, 2, 4, 5], [1, 6, 4, 5]].to_set
+    result = [[1, 2, 3], [1, 2, 4, 5], [1, 6, 4, 5]].to_set
+    ops_1 = 0
+    array_paths = DG.fold 1, [] do |accum, vertex| 
+      ops_1 += 1
+      accum + [vertex]
+    end
+    array_paths.should == result
+
+    ops_2 = 0
+    array_path_proc = DG.compile_fold 1
+    array_paths = array_path_proc.call [] do |accum, vertex| 
+      ops_2 += 1
+      accum + [vertex]
+    end
+    array_paths.should == result
+    ops_1.should == ops_2
   end
 
   it "should fold from non-root vertex" do
-    alt_root_paths = DG.fold(6, []) {|accum, vertex| accum + [vertex]}
-    alt_root_paths.should == [[6, 4, 5]].to_set
+    result = [[6, 4, 5]].to_set
+    ops_1 = 0
+    alt_root_paths = DG.fold 6, [] do |accum, vertex| 
+      ops_1 += 1
+      accum + [vertex]
+    end
+    alt_root_paths.should == result
+
+    ops_2 = 0
+    alt_root_paths_proc = DG.compile_fold 6
+    alt_root_paths = alt_root_paths_proc.call [] do |accum, vertex| 
+      ops_2 += 1
+      accum + [vertex]
+    end
+    alt_root_paths.should == result
+    ops_1.should == ops_2
   end
 
   it "should accumulate folded paths" do
-    sum_paths = DG.fold(1, 0) {|accum, vertex| accum + vertex}
-    sum_paths.should == [6, 12, 16].to_set
+    result = [6, 12, 16].to_set
+    ops_1 = 0
+    sum_paths = DG.fold 1, 0 do |accum, vertex| 
+      ops_1 += 1
+      accum + vertex
+    end
+    sum_paths.should == result
+
+    ops_2 = 0
+    sum_paths_proc = DG.compile_fold 1
+    sum_paths = sum_paths_proc.call 0 do |accum, vertex|
+      ops_2 += 1
+      accum + vertex
+    end
+    sum_paths.should == result
+    ops_1.should == ops_2
   end
 end
