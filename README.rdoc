@@ -1,13 +1,13 @@
 = rgl-fold
 
-The RGLFold module adds a fold method to RGL[http://rgl.rubyforge.org/rgl/] graphs. Fold iterates over all paths accessible in a graph from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
+The RGLFold module adds the fold and compile_fold methods to RGL[http://rgl.rubyforge.org/rgl/] graphs. Fold iterates over all paths accessible in a graph from a given vertex, combining successive vertices using a given block. These methods work on both cyclic and acyclic graphs.
 
 == Usage
 
 Create a directed adjacency graph and add fold functionality:
     require 'rgl/adjacency'
     require 'rgl-fold'
-    dg = RGL::DirectedAdjacencyGraph [1,2, 2,3, 2,4, 4,5, 6,4, 1,6]
+    dg = RGL::DirectedAdjacencyGraph[1,2, 2,3, 2,4, 4,5, 6,4, 1,6]
     dg.extend RGLFold
 
 Return a set of every path in the graph from the root vertex:
@@ -21,6 +21,11 @@ Return a set of every path in the graph from the 6 vertex:
 Sum the vertices for each path:
     dg.fold(1, 0) {|accum, vertex| accum + vertex}
       #=> #<Set: {6, 12, 16}>
+
+Compile and call a lambda which, when given an initial value and a fold block, returns a set of every path in the graph from the root vertex:
+    fold_proc = dg.compile_fold 1
+    fold_proc.call [] {|accum, vertex| accum + [vertex]}
+      #=> #<Set: {[1, 2, 3], [1, 2, 4, 5], [1, 6, 4, 5]}> 
 
 == Contributing to rgl-fold
  
