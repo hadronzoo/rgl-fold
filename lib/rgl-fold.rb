@@ -1,11 +1,11 @@
-# Adds {#fold} and {#compile_fold} to RGL[http://rgl.rubyforge.org/rgl/] graphs
+# Adds {#fold}, {#fold_right}, {#compile_fold}, and {#compile_fold_right} to RGL[http://rgl.rubyforge.org/rgl/] graphs
 module RGLFold
 
-  # Iterates over all paths accessible in the graph from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
+  # Fold is the fundamental tree iterator. Iterates over all paths accessible in the graph starting from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
   #
   # @author Joshua B. Griffith
   # @param [Object] vertex vertex whose adjacent paths will be iterated over
-  # @param [Object] init initial value sent to the given block
+  # @param [Object] init initial value used for accum
   # @yield [accum, vertex] Block used to combine a path's next vertex with the previously accumulated value
   # @yieldparam [Object] accum previously accumulated value, or init for first vertex in the path
   # @yieldparam [Object] vertex the current path vertex
@@ -58,7 +58,7 @@ module RGLFold
     results
   end
 
-  # Returns a lambda which, when called with an initial value and a fold block, iterates over all paths accessible in the graph from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
+  # Returns a lambda which, when called with an initial value and a fold block, iterates over all paths accessible in the graph starting from a given vertex, combining successive vertices using a given block. This method works on both cyclic and acyclic graphs.
   #
   # @author Joshua B. Griffith
   # @param [Object] vertex vertex whose adjacent paths will be iterated over
@@ -100,6 +100,78 @@ module RGLFold
       end
 
       results.to_set
+    end
+  end
+
+  # Fold right is the fundamental tree recursion operator. Starting with the leaves, it folds up the tree to the given vertex using the given proc. This method works on both cyclic and acyclic graphs.
+  #
+  # @author Joshua B. Griffith
+  # @param [Object] vertex the starting vertex whose descendants will be folded
+  # @param [Object] init initial value used for accum
+  # @yield [accum, vertex] Block used to combine a vertex with a previously accumulated value
+  # @yieldparam [Object] accum previously accumulated value, or init for a leaf vertex. This parameter's type will either be a Set or equal to the type of the init object.
+  # @yieldparam [Object] vertex the current vertex
+  # @yieldreturn [Object] newly accumulated value
+  # @return [Object] the accumulated value at the given vertex
+  
+  def fold_right(vertex, init, &proc)
+    get_targets = lambda do |vertex|
+      targets = []
+      each_adjacent(vertex) {|v| targets << v}
+    end
+
+    vcache = { }
+    tree_fold = lambda do |v, visited_vertices|
+      targets = get_targets.call v
+      if vcache.include? v
+        vcache[v]
+      elsif targets.empty?
+        vcache[v] = proc.call init, v
+      else
+        filtered = targets.delete_if { |v| visited_vertices.include? v }
+        folded = filtered.map { |new_v| tree_fold.call new_v, visited_vertices + [v] }
+        vcache[v] = proc.call folded.to_set, v
+      end
+    end
+
+    tree_fold.call(vertex, Set.new)
+  end
+
+  # Returns a lambda which, when called with an initial value and a fold_right block, folds up the tree to the given vertex using the given proc, starting with the leaves. This method works on both cyclic and acyclic graphs.
+  #
+  # @author Joshua B. Griffith
+  # @param [Object] vertex the starting vertex whose descendants will be folded
+  # @return [Proc] a lambda which, when called given an initial value and a fold_right block, returns the accumulated value at the given vertex
+  # @note The returned lambda does not reference the graph when called. The graph is precompiled into the function.
+  
+  def compile_fold_right(vertex)
+    instructions = []
+    fold_tree = fold_right vertex, Set.new do |accum, vertex|
+      result = accum + [vertex]
+      instructions << { :accum => accum, :vertex => vertex, :result => result }
+      result
+    end
+
+    lambda do |init, &proc|
+      vcache = { }
+      instructions.each do |instruction|
+        accum = instruction[:accum]
+        vertex = instruction[:vertex]
+        result = instruction[:result]
+
+        if !vcache.include? result
+          if accum.empty?
+            vcache[result] = proc.call init, vertex
+          else
+            new_accum = accum.map do |v|
+              vcache[v]
+            end
+            vcache[result] = proc.call new_accum.to_set, vertex
+          end
+        end
+      end
+
+      vcache[instructions.last[:result]]
     end
   end
 end

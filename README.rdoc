@@ -1,6 +1,6 @@
 = rgl-fold
 
-The RGLFold module adds the fold and compile_fold methods to RGL[http://rgl.rubyforge.org/rgl/] graphs. Fold iterates over all paths accessible in a graph from a given vertex, combining successive vertices using a given block. These methods work on both cyclic and acyclic graphs.
+The RGLFold module adds the fold, fold_right, compile_fold, and compile_fold_right methods to RGL[http://rgl.rubyforge.org/rgl/] graphs. Fold iterates or recurses over a graph from a given vertex, combining successive vertices using a given block. These methods work on both cyclic and acyclic graphs.
 
 == Usage
 

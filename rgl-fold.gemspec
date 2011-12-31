@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "rgl-fold"
-  s.version = "0.2.0"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joshua B. Griffith"]
-  s.date = "2011-12-11"
+  s.date = "2011-12-31"
   s.description = "Fold for Ruby Graph Library graphs"
   s.email = "josh.griffith@gmail.com"
   s.extra_rdoc_files = [
