@@ -128,7 +128,7 @@ module RGLFold
       elsif targets.empty?
         vcache[v] = proc.call init, v
       else
-        filtered = targets.delete_if { |v| visited_vertices.include? v }
+        filtered = targets - visited_vertices
         folded = filtered.map { |new_v| tree_fold.call new_v, visited_vertices + [v] }
         vcache[v] = proc.call folded.to_set, v
       end
