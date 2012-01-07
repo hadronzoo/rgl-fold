@@ -147,7 +147,7 @@ module RGLFold
   def compile_fold_right(vertex)
     instructions = []
     fold_tree = fold_right vertex, Set.new do |accum, vertex|
-      result = accum + [vertex]
+      result = (accum + [vertex]).hash
       instructions << { :accum => accum, :vertex => vertex, :result => result }
       result
     end
