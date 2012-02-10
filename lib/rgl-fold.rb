@@ -185,7 +185,21 @@ module RGLFold
   def find_all_paths(source, target)
     paths = Set.new
     self.fold source, [] do |accum, vertex|
-      current_path = accum + [vertex]
+      last = accum.last
+      if last == vertex
+        current_path = accum
+      else
+        current_path = accum + [vertex]
+      end
+      
+      if vertex == target
+        len = accum.length
+        if len > 1
+          paths.add current_path
+        elsif len == 1
+          paths.add accum + [vertex]
+        end
+      end
       paths.add current_path if vertex == target && current_path.length > 1
       current_path
     end

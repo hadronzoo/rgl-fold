@@ -8,6 +8,9 @@ describe "RglFold" do
 
     CycleDG = RGL::DirectedAdjacencyGraph[1,2, 2,3, 3,4, 3,1]
     CycleDG.extend RGLFold
+
+    CycleDG2 = RGL::DirectedAdjacencyGraph[1,1, 1,2, 2,3, 2,1]
+    CycleDG2.extend RGLFold
   end
 
   it "should fold from root vertex" do
@@ -151,5 +154,7 @@ describe "RglFold" do
   it "should find all paths between two vertices" do
     DG.find_all_paths(1, 5).should == [[1,2,4,5], [1,6,4,5]].to_set
     CycleDG.find_all_paths(1, 1).should == [[1,2,3,1]].to_set
+    CycleDG2.find_all_paths(1, 3).should == [[1,2,3]].to_set
+    CycleDG2.find_all_paths(1, 1).should == [[1,1], [1,2,1]].to_set
   end
 end
