@@ -174,4 +174,21 @@ module RGLFold
       vcache[instructions.last[:result]]
     end
   end
+
+  # Returns a set of all paths between the source and target vertices.
+  #
+  # @author Joshua B. Griffith
+  # @param [Object] source starting vertex
+  # @param [Object] target ending vertex
+  # @return [Set] a set containing all of the paths between the source and target vertices, where each path is represented as an Array
+  # @note This method works for both cyclic and acyclic graphs
+  def find_all_paths(source, target)
+    paths = Set.new
+    self.fold source, [] do |accum, vertex|
+      current_path = accum + [vertex]
+      paths.add current_path if vertex == target && current_path.length > 1
+      current_path
+    end
+    paths
+  end
 end

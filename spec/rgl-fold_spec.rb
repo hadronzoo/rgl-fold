@@ -147,4 +147,9 @@ describe "RglFold" do
      end
      r.should == result
   end
+
+  it "should find all paths between two vertices" do
+    DG.find_all_paths(1, 5).should == [[1,2,4,5], [1,6,4,5]].to_set
+    CycleDG.find_all_paths(1, 1).should == [[1,2,3,1]].to_set
+  end
 end
